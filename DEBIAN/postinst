@@ -1,0 +1,4 @@
+#! /bin/bash
+
+chown -R root:root /usr/bin/imap-checker /etc/imap-checker
+chmod 755 /usr/bin/imap-checker

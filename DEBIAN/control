@@ -1,0 +1,8 @@
+Package: imap-checker
+Version: INSTALL_VERSION
+Section: custom
+Priority: optional
+Architecture: amd64
+Installed-Size: INSTALL_SIZE
+Maintainer: Michal Skrha <michal@skrha.cz>
+Description: Simple tool to check IMAP server and print number of unread and all messages for specified accounts.
