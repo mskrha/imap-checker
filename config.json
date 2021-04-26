@@ -1,0 +1,35 @@
+{
+	"delimiter": ", ",
+	"servers": [
+		{
+			"name": "server1",
+			"host": "mail.example.com",
+			"tls": true
+		},
+		{
+			"name": "server2",
+			"host": "mail.example.net",
+			"tls": true
+		}
+	],
+	"accounts": [
+		{
+			"name": "Account 1",
+			"server": "server1",
+			"username": "user1@emample.com",
+			"password": "secret"
+		},
+		{
+			"name": "Account 2",
+			"server": "server2",
+			"username": "user@example.net",
+			"password": "secret"
+		},
+		{
+			"name": "Account 3",
+			"server": "server1",
+			"username": "user2@example.com",
+			"password": "secret"
+		}
+	]
+}
