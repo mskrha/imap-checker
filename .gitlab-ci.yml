@@ -1,0 +1,17 @@
+deploy:
+ tags:
+  - golang
+  - debian
+ only:
+  - tags
+ script:
+  - export GOROOT='/opt/go'
+  - export PATH="${PATH}:${GOROOT}/bin"
+  - export GOPATH='/opt/.go'
+  - export VERSION=${CI_BUILD_TAG}
+  - export ARCH=amd64
+  - export PKG=imap-checker_${VERSION}_${ARCH}
+  - cd source
+  - make deb
+  - /usr/sbin/reprepro-uploader ${PKG}.deb jessie stretch buster
+  - rm -fv ${PKG}.deb
