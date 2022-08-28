@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
+	"github.com/emersion/go-sasl"
+	"github.com/mskrha/oauth2-token-refresher"
 )
 
 type Status struct {
@@ -52,11 +55,18 @@ type Account struct {
 	Server string `json:"server"`
 
 	/*
-		Account credentials
+		Authentication type
+		- password
+		- oauth2
+	*/
+	Auth string `json:"auth"`
 
+	/*
+		Account credentials
 	*/
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Token    string `json:"token"`
 }
 
 type Checker struct {
@@ -75,10 +85,18 @@ type Checker struct {
 	tls bool
 
 	/*
+		Authentication type
+		- password
+		- oauth2
+	*/
+	auth string
+
+	/*
 		Account login credentials
 	*/
 	username string
 	password string
+	token    string
 
 	/*
 		IMAP client connection
@@ -104,9 +122,22 @@ func NewChecker(a Account) (*Checker, error) {
 	if len(a.Username) == 0 {
 		return nil, fmt.Errorf("No username specified for account %s", a.Name)
 	}
-	if len(a.Password) == 0 {
-		return nil, fmt.Errorf("No password specified for account %s", a.Name)
+
+	switch a.Auth {
+	case "password":
+		if len(a.Password) == 0 {
+			return nil, fmt.Errorf("No password specified for account %s", a.Name)
+		}
+		c.password = a.Password
+	case "oauth2":
+		if len(a.Token) == 0 {
+			return nil, fmt.Errorf("No token specified for account %s", a.Name)
+		}
+		c.token = a.Token
+	default:
+		return nil, fmt.Errorf("Authentication type %s not supported", a.Auth)
 	}
+	c.auth = a.Auth
 
 	/*
 		Find server specification by the given name
@@ -132,7 +163,6 @@ func NewChecker(a Account) (*Checker, error) {
 
 	c.name = a.Name
 	c.username = a.Username
-	c.password = a.Password
 
 	return &c, nil
 }
@@ -168,7 +198,22 @@ func (c *Checker) connect() (err error) {
 	Try to login to the IMAP server
 */
 func (c *Checker) login() error {
-	return c.conn.Login(c.username, c.password)
+	switch c.auth {
+	case "password":
+		return c.conn.Login(c.username, c.password)
+	case "oauth2":
+		o2r, err := refresher.New("microsoft", c.token, "", time.Now())
+		if err != nil {
+			return err
+		}
+		t, err := o2r.GetToken()
+		if err != nil {
+			return err
+		}
+		return c.conn.Authenticate(sasl.NewXoauth2Client(c.username, t))
+	default:
+		return fmt.Errorf("BUG bad authentication type")
+	}
 }
 
 /*
