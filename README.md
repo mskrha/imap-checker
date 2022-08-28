@@ -5,6 +5,9 @@
 ### Description
 Simple tool to check IMAP server and print number of unread and all messages for specified accounts.
 
+### Important notice
+It is required to checkout commit 4132e15 of library github.com/emersion/go-sasl, because after this commit the XOAUTH2 support was removed.
+
 ### Build
 ```shell
 git clone https://github.com/mskrha/imap-checker.git
